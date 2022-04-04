@@ -769,3 +769,4 @@ java.util.NoSuchElementException: No value present
 2022-04-04 16:16:25 - INFO - t.e.s.TimesheetSpringBootCoreDataJpaMvcRest1Application - Started TimesheetSpringBootCoreDataJpaMvcRest1Application in 5.356 seconds (JVM running for 6.089) 
 2022-04-04 16:17:05 - INFO - o.a.c.c.C.[.[localhost].[/SpringMVC] - Initializing Spring DispatcherServlet 'dispatcherServlet' 
 2022-04-04 16:17:05 - INFO - o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet' 
+2022-04-04 16:17:05 - INFO - o.s.web.servlet.DispatcherServlet - Completed initialization in 6 ms 
