@@ -14,6 +14,14 @@
 	<packaging>war</packaging>
 	<name>Timesheet-spring-boot-core-data-jpa-mvc-REST-1</name>
 	<description>Timesheet-spring-boot-core-data-jpa-mvc-REST-1</description>
+	<repositories>
+<repository>
+
+<id> deploymentRepo </id>
+<url> http://localhost:8081/repository/maven-releases/ </url>
+
+</repository>
+</repositories>
 
 	<properties>
 		<java.version>1.8</java.version>

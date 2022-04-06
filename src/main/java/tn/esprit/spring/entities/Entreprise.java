@@ -49,8 +49,8 @@ public class Entreprise implements Serializable{
 
 	public Entreprise(String name, String raisonSocial) {
 		this.name = name;
-		this.raisonSocial = raisonSocial;
-	}
+		this.raisonSocial = raisonSocial;}
+	
 
 	public int getId() {
 		return id;
@@ -89,6 +89,13 @@ public class Entreprise implements Serializable{
 		departement.setEntreprise(this);
 		this.departements.add(departement);
 	}
+
+	public Entreprise(int id) {
+		super();
+		this.id = id;
+	}
+
+
 
 
 
