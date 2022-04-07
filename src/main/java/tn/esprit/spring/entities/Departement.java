@@ -12,8 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class Departement implements Serializable {
 	
 	private String name;
 	
-	//@JsonManagedReference 
+	
 	@JsonIgnore
 	@ManyToMany
 	private List<Employe> employes;

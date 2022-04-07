@@ -3,6 +3,7 @@ package tn.esprit.spring.services;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,10 +40,15 @@ public class EmployeServiceImpl implements IEmployeService {
 	}
 
 	public void mettreAjourEmailByEmployeId(String email, int employeId) {
-		Employe employe = employeRepository.findById(employeId).get();
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		Employe employe=null;
+		if(empOpt.isPresent()){
+		employe = empOpt.get();
+		}
+		if(employe!=null){
 		employe.setEmail(email);
 		employeRepository.save(employe);
-
+		}
 	}
 
 	@Transactional	
@@ -71,7 +77,7 @@ public class EmployeServiceImpl implements IEmployeService {
 		for(int index = 0; index < employeNb; index++){
 			if(dep.getEmployes().get(index).getId() == employeId){
 				dep.getEmployes().remove(index);
-				break;//a revoir
+				break;
 			}
 		}
 	}
@@ -80,29 +86,40 @@ public class EmployeServiceImpl implements IEmployeService {
 		contratRepoistory.save(contrat);
 		return contrat.getReference();
 	}
-
 	public void affecterContratAEmploye(int contratId, int employeId) {
-		Contrat contratManagedEntity = contratRepoistory.findById(contratId).get();
-		Employe employeManagedEntity = employeRepository.findById(employeId).get();
-
-		contratManagedEntity.setEmploye(employeManagedEntity);
-		contratRepoistory.save(contratManagedEntity);
-		
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		Optional<Contrat> contratOpt=contratRepoistory.findById(contratId);
+		Employe employeManagedEntity=null;
+		Contrat contratManagedEntity=null;
+		if(empOpt.isPresent() && contratOpt.isPresent()){
+			employeManagedEntity = empOpt.get();
+			contratManagedEntity = contratOpt.get();
+		}
+		if(employeManagedEntity!=null && contratManagedEntity!=null){
+			contratManagedEntity.setEmploye(employeManagedEntity);
+			contratRepoistory.save(contratManagedEntity);
+		}
 	}
 //FROM HERE
 	public String getEmployePrenomById(int employeId) {
 		log.info("getEmployePrenomById lancée");
 		Employe employeManagedEntity=null;
+		String prenom=null;
 		try{
-		employeManagedEntity = employeRepository.findById(employeId).get();
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		if(empOpt.isPresent()){
+			employeManagedEntity = empOpt.get();
+			prenom=employeManagedEntity.getPrenom();
+			log.info("Le prenom de l employe est: "+prenom);
+		}
 		}catch(Exception e){
 			log.error("getEmployePrenomById echouée, "+e);
 		}
-		log.info("Le prenom de l employe est: "+employeManagedEntity.getPrenom());
-		return employeManagedEntity.getPrenom();
+		return prenom;
 	}
 	public void deleteEmployeById(int employeId)
 	{
+		log.info("deleteEmployeById lancée");
 		Employe employe = employeRepository.findById(employeId).get();
 
 		//Desaffecter l'employe de tous les departements
@@ -113,6 +130,7 @@ public class EmployeServiceImpl implements IEmployeService {
 		}
 
 		employeRepository.delete(employe);
+		log.info("Employe supprimé avec succès");
 	}
 
 	public void deleteContratById(int contratId) {

@@ -49,7 +49,12 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
+	<repositories>
+		<repository>
+			<id> deploymentRepo </id>
+			<url> http://localhost:8081/repository/maven-releases/ </url>
+		</repository>
+	</repositories>
 	<build>
 		<plugins>
 			<plugin>
