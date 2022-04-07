@@ -2,6 +2,7 @@ package tn.esprit.spring.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import tn.esprit.spring.entities.Employe;
 import tn.esprit.spring.entities.Entreprise;
 import tn.esprit.spring.entities.Mission;
 import tn.esprit.spring.entities.Timesheet;
+import tn.esprit.spring.repository.EmployeRepository;
 import tn.esprit.spring.services.IEmployeService;
 import tn.esprit.spring.services.IEntrepriseService;
 import tn.esprit.spring.services.ITimesheetService;
@@ -24,6 +26,8 @@ public class IControllerEmployeImpl  {
 	IEntrepriseService ientrepriseservice;
 	@Autowired
 	ITimesheetService itimesheetservice;
+	@Autowired
+	EmployeRepository employeRepository ;
 
 	public int ajouterEmploye(Employe employe)
 	{
@@ -32,6 +36,15 @@ public class IControllerEmployeImpl  {
 	}
     
 	public void mettreAjourEmailByEmployeId(String email, int employeId) {
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		Employe employe=null;
+		if(empOpt.isPresent()){
+		employe = empOpt.get();
+		}
+		if(employe!=null){
+		employe.setEmail(email);
+		employeRepository.save(employe);
+		}
 		iemployeservice.mettreAjourEmailByEmployeId(email, employeId);
 		
 	}
@@ -104,13 +117,11 @@ public class IControllerEmployeImpl  {
 
 	
 	public float getSalaireByEmployeIdJPQL(int employeId) {
-		// TODO Auto-generated method stub
 		return iemployeservice.getSalaireByEmployeIdJPQL(employeId);
 	}
 
 
 	public Double getSalaireMoyenByDepartementId(int departementId) {
-		// TODO Auto-generated method stub
 		return iemployeservice.getSalaireMoyenByDepartementId(departementId);
 	}
 

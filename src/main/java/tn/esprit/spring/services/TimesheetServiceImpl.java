@@ -1,12 +1,13 @@
 package tn.esprit.spring.services;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import tn.esprit.spring.entities.Departement;
@@ -35,30 +36,37 @@ public class TimesheetServiceImpl implements ITimesheetService {
 	EmployeRepository employeRepository;
 	
 	public int ajouterMission(Mission mission) {
-		log.info("Ajouter Mission commence avec succés");
+		log.info("[INFO] :L'ajout d'une mission commence");
 		try {
 			missionRepository.save(mission);
-			log.info("Get Id de la nouvelle mission ");
+			log.info("[INFO] :Mission ajouté avec succées  ");
 			} catch (Exception e) 
-		{log.error("Erreur : Mission ne peut pas etre ajouter merci de verifier vos données d'entrés , plus de detail ",e );}
+		{log.error("[Error] : Mission ne peut pas etre ajouter merci de verifier vos données d'entrés , plus de detail ",e );}
 		return mission.getId();
 	}
-    
-	public void affecterMissionADepartement(int missionId, int depId) {
-		log.info("Affecter Mission Departement commence avec succés");
-		Mission mission=null;
-		Departement dep = null ;
-		try {
-			log.info("Get Id de la nouvelle mission ");
-		mission = missionRepository.findById(missionId).get();
-		dep = deptRepoistory.findById(depId).get();
-		mission.setDepartement(dep);
-		missionRepository.save(mission);}
-		catch (Exception e) 
-		{log.error("Erreur : Mission ne peut pas etre affecté au departement merci de verifier vos données d'entrés , plus de detail ",e );}		
-	}
 
+	public void affecterMissionADepartement(int missionId, int depId) {
+		log.info("[INFO] :Affecter Mission à un  Departement commence");
+		Optional<Mission> missionOpt=missionRepository.findById(missionId);
+		Optional<Departement> departOpt=deptRepoistory.findById(depId);
+		Mission mission = null;
+		Departement dep = null; 
+		if(departOpt.isPresent()){
+			dep = departOpt.get();
+			}
+		if(missionOpt.isPresent()){
+			mission = missionOpt.get();
+			mission.setDepartement(dep);
+			}
+		try {	
+		missionRepository.save(mission);
+		log.info("[INFO] :Affectation mission departement reussite ");}
+		catch (Exception e) 
+		{log.error("[Error] : Mission ne peut pas etre affecté au departement merci de verifier vos données d'entrés , plus de detail ",e );}		
+	}
 	public void ajouterTimesheet(int missionId, int employeId, Date dateDebut, Date dateFin) {
+		log.info("[INFO] :La fonction Ajouter TimeSheet commence");
+		try {
 		TimesheetPK timesheetPK = new TimesheetPK();
 		timesheetPK.setDateDebut(dateDebut);
 		timesheetPK.setDateFin(dateFin);
@@ -67,22 +75,33 @@ public class TimesheetServiceImpl implements ITimesheetService {
 		
 		Timesheet timesheet = new Timesheet();
 		timesheet.setTimesheetPK(timesheetPK);
-		timesheet.setValide(false); //par defaut non valide
+		timesheet.setValide(false);
 		timesheetRepository.save(timesheet);
+		log.info("[INFO] : timesheet ajouté avec succées");
+		}catch (Exception e)
+		{log.error("[Error] : Mission ne peut pas etre affecté au departement merci de verifier vos données d'entrés , plus de detail ",e );}		
 		
 	}
-
-	
 	public void validerTimesheet(int missionId, int employeId, Date dateDebut, Date dateFin, int validateurId) {
-		System.out.println("In valider Timesheet");
-		Employe validateur = employeRepository.findById(validateurId).get();
-		Mission mission = missionRepository.findById(missionId).get();
-		//verifier s'il est un chef de departement (interet des enum)
-		if(!validateur.getRole().equals(Role.CHEF_DEPARTEMENT)){
-			System.out.println("l'employe doit etre chef de departement pour valider une feuille de temps !");
+		log.info("[INFO] La fonction Valider TimeSheet Commence ");
+		Optional<Employe> validateuropt = employeRepository.findById(validateurId);
+		Optional<Mission> missionopt = missionRepository.findById(missionId);
+		Mission mission=null ;
+		Employe validateur = null ;
+		if(missionopt.isPresent()){
+			mission = missionopt.get();
+			}
+		if(validateuropt.isPresent()){
+			validateur = validateuropt.get();
+			
+		}
+		try{
+			if( (mission != null )&&( validateur != null))
+		{if(!validateur.getRole().equals(Role.CHEF_DEPARTEMENT)){
+			log.info(" [INFO] :l'employe doit etre chef de departement pour valider une feuille de temps !");
 			return;
 		}
-		//verifier s'il est le chef de departement de la mission en question
+		
 		boolean chefDeLaMission = false;
 		for(Departement dep : validateur.getDepartements()){
 			if(dep.getId() == mission.getDepartement().getId()){
@@ -91,28 +110,44 @@ public class TimesheetServiceImpl implements ITimesheetService {
 			}
 		}
 		if(!chefDeLaMission){
-			System.out.println("l'employe doit etre chef de departement de la mission en question");
+			log.info("[INFO] : l'employe doit etre chef de departement de la mission en question");
 			return;
 		}
-//
+
 		TimesheetPK timesheetPK = new TimesheetPK(missionId, employeId, dateDebut, dateFin);
 		Timesheet timesheet =timesheetRepository.findBytimesheetPK(timesheetPK);
 		timesheet.setValide(true);
 		
-		//Comment Lire une date de la base de données
+		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		System.out.println("dateDebut : " + dateFormat.format(timesheet.getTimesheetPK().getDateDebut()));
+		log.info(" [INFO] : dateDebut : " + dateFormat.format(timesheet.getTimesheetPK().getDateDebut()));}}
+		catch (Exception e )
+		{log.error("[Error] : Validation impossible ",e );}		
+		
+		
+	}
+
+	public List<Mission> findAllMissionByEmployeJPQL(int employeId) {
+		log.info("[INFO]:  Find All Mission BY Employee Commence");
+		List<Mission> l = new ArrayList <>();
+		try {
+			l = timesheetRepository.findAllMissionByEmployeJPQL(employeId);
+		}catch (Exception e)
+		{log.error("[Error] : Get All Employee By Mission Failed , plus de detail ",e );}
+		return l ;
 		
 	}
 
 	
-	public List<Mission> findAllMissionByEmployeJPQL(int employeId) {
-		return timesheetRepository.findAllMissionByEmployeJPQL(employeId);
-	}
-
-	
 	public List<Employe> getAllEmployeByMission(int missionId) {
-		return timesheetRepository.getAllEmployeByMission(missionId);
+		log.info("[INFO] Find All Employee By Mission Commence");
+		List<Employe> l = new ArrayList <>();
+		try {
+		l = timesheetRepository.getAllEmployeByMission(missionId);
+		}catch (Exception e)
+		{log.error("[Error] : Get All Employee By Mission Failed , plus de detail ",e );}
+		return l ;
 	}
 
 }
+    
