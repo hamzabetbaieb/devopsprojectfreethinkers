@@ -3,7 +3,7 @@ package tn.esprit.spring.entities;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -15,10 +15,10 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
+
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,28 +44,28 @@ public class Employe implements Serializable {
 	
 	private String nom;
 	
-	//@Column(unique=true)
+	
 	private String email;
 
 	private boolean isActif;
 	
 	@Enumerated(EnumType.STRING)
-	//@NotNull
+	
 	private Role role;
 	
-	//@JsonBackReference  
+	  
 	@JsonIgnore
 	@ManyToMany(mappedBy="employes",fetch=FetchType.EAGER )
-	//@NotNull
+	
 	private List<Departement> departements;
 	
 	@JsonIgnore
-	//@JsonBackReference
+	
 	@OneToOne(mappedBy="employe")
 	private Contrat contrat;
 	
 	@JsonIgnore
-	//@JsonBackReference
+	
 	@OneToMany(mappedBy="employe")
 	private List<Timesheet> timesheets;
 	
@@ -152,6 +152,7 @@ public class Employe implements Serializable {
 		this.timesheets = timesheets;
 	}
 	
+
 	
 	
 }

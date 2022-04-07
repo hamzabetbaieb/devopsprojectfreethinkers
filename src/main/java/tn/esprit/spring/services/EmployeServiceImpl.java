@@ -3,6 +3,7 @@ package tn.esprit.spring.services;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,26 +48,44 @@ public class EmployeServiceImpl implements IEmployeService {
 
 	public void mettreAjourEmailByEmployeId(String email, int employeId) {
 		log.info("mettreAjourEmailByEmployeId a été lancé ");
-		Employe employe = employeRepository.findById(employeId).get();
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		Employe employe=null;
+		if(empOpt.isPresent()){
+		employe = empOpt.get();
+		}
+		if(employe!=null){
 		employe.setEmail(email);
 		employeRepository.save(employe);
 		log.info("L'employé dont L'ID = "+employe.getId()+" est mis a jour ");
 
+		}
+		
 	}
 
 	@Transactional	
 	public void affecterEmployeADepartement(int employeId, int depId) {
-		log.info("ajouterEmploye a été lancé ");
+		log.info("affecterEmploye a été lancé ");
+		
+		
+		Optional<Employe> empOpt=employeRepository.findById(employeId);
+		Optional<Departement> depOpt=deptRepoistory.findById(depId); 
+		
 		Departement depManagedEntity=null;
 		Employe employeManagedEntity=null;
 		try{
-		 depManagedEntity = deptRepoistory.findById(depId).get();
-		 employeManagedEntity = employeRepository.findById(employeId).get();
+			if(empOpt.isPresent() && depOpt.isPresent()){
+				employeManagedEntity = empOpt.get();
+				depManagedEntity = depOpt.get();
+			}
+			
 		}
 		catch (Exception e){
 			log.error("L'affectation de l'employé a echoué "+e.toString());
 		}
-
+		if(employeManagedEntity!=null && depManagedEntity!=null){
+			
+		
+		
 		if(depManagedEntity.getEmployes() == null){
 
 			List<Employe> employes = new ArrayList<>();
@@ -75,9 +94,8 @@ public class EmployeServiceImpl implements IEmployeService {
 		}else{
 
 			depManagedEntity.getEmployes().add(employeManagedEntity);
-
 		}
-
+		}	
 	}
 	@Transactional
 	public void desaffecterEmployeDuDepartement(int employeId, int depId)
@@ -115,9 +133,6 @@ public class EmployeServiceImpl implements IEmployeService {
 	{
 		Employe employe = employeRepository.findById(employeId).get();
 
-		//Desaffecter l'employe de tous les departements
-		//c'est le bout master qui permet de mettre a jour
-		//la table d'association
 		for(Departement dep : employe.getDepartements()){
 			dep.getEmployes().remove(employe);
 		}
